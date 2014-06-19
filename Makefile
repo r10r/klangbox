@@ -10,7 +10,7 @@ MODULES := module-combine-unique.so \
 
 default: $(MODULES)
 
-%.so: %.c util.c
+%.so: %.c libcx/string/util.c
 	gcc $(CFLAGS) -g -shared -o $@ $?
 
 pulsedevicelist: pulsedevicelist.c

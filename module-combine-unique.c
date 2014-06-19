@@ -1,5 +1,5 @@
 #include "module.h"
-#include "util.h"
+#include "libcx/string/util.h"
 
 PA_MODULE_AUTHOR("Ruben Jenster");
 PA_MODULE_DESCRIPTION("Ensure that a sink is only included a single combine sink");
