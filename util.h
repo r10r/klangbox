@@ -1,6 +1,6 @@
 #include <string.h>
-#include <stddef.h> /* NULL */
-#include <stdlib.h> /* calloc */
+#include <stddef.h>     /* NULL */
+#include <stdlib.h>     /* calloc */
 
 #define cx_alloc(n) calloc(1, n)
 #define cx_free(n) free(n)

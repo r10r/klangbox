@@ -1,7 +1,7 @@
 #ifndef _KLANGBOX_MODULE_H_
 #define _KLANGBOX_MODULE_H_
 
-#include "../config.h"	/* generated from configure script */
+#include "../config.h"  /* generated from configure script */
 #include "pulsecore/module.h"
 #include "pulsecore/log.h"
 #include "pulsecore/modargs.h"
