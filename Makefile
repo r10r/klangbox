@@ -1,14 +1,37 @@
-#LDFLAGS := -lpulse
-# Build is for user account
-CFLAGS := -Wall -Werror -I/usr/local/src/pulseaudio/src
+PA_MODULE_DIR := /usr/lib/pulse-5.0/modules
+PA_SRC_DIR := /usr/local/src/pulseaudio
 
-default: module-hello-world
+CFLAGS := -Wall -Werror -I $(PA_SRC_DIR)/src
 
-module-hello-world: module-hello-world.c
+MODULES := module-combine-unique \
+	module-one-input \
+	module-one-sink \
+	module-couple
+
+default: $(MODULES)
+
+module-combine-unique: module-combine-unique.c util.c
+	gcc $(CFLAGS) -g -shared -o $@.so $?
+
+module-one-input: module-one-input.c
+	gcc $(CFLAGS) -g -shared -o $@.so $?
+
+module-one-sink: module-one-sink.c util.c
+	gcc $(CFLAGS) -g -shared -o $@.so $?
+	
+module-couple: module-couple.c util.c
 	gcc $(CFLAGS) -g -shared -o $@.so $?
 
 pulsedevicelist: pulsedevicelist.c
 	gcc $(CFLAGS) -o $@ $? -lpulse
 
-install: module-hello-world
-	sudo cp module-hello-world.so /usr/lib/pulse-5.0/modules
+install: $(MODULES)
+	sudo cp $(patsubst %,%.so,$?) $(PA_MODULE_DIR)
+
+deploy: install
+	sudo -u pulse pacmd load-module module-combine-unique && \
+	sudo -u pulse pacmd load-module module-one-input && \
+	sudo -u pulse pacmd load-module module-one-sink && \
+	sudo -u pulse pacmd load-module module-couple
+
+	
