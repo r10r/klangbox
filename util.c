@@ -28,10 +28,10 @@ str_cnt(const char* s, const char* token)
 unsigned
 str_split(char* s, const char* sep, const char*** ptr)
 {
-	unsigned num_sep = str_cnt(s, sep);
-
-	if (num_sep == 0)
+	if (s == NULL)
 		return 0;
+
+	unsigned num_sep = str_cnt(s, sep);
 
 	unsigned num_tokens = num_sep + 1;
 	unsigned num_elems = num_tokens + 1 /* NULL terminator */;

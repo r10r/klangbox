@@ -16,7 +16,6 @@ default: $(MODULES)
 pulsedevicelist: pulsedevicelist.c
 	gcc $(CFLAGS) -o $@ $? -lpulse
 
-
 clean:
 	rm $(wildcard $(MODULES))
 

@@ -46,6 +46,10 @@ try_remove_slaves_from_sink(pa_sink* sink, const char** slave_names_to_remove)
 	const char** slave_names = NULL;
 	unsigned num_slave_names = str_split(slave_names_str, SLAVES_SEPARATOR, &slave_names);
 
+	const char* name = NULL;
+	int name_idx = 0;
+	while((name = slave_names[name_idx++]) != NULL)
+		pa_log_notice("SINK[%s] - slave %s", sink->name, name);
 
 	if (!slave_names)
 	{
@@ -57,14 +61,17 @@ try_remove_slaves_from_sink(pa_sink* sink, const char** slave_names_to_remove)
 		unsigned num_slaves_remaining = str_arr_diff(slave_names, num_slave_names, slave_names_to_remove, &slaves_remaining);
 		pa_log_notice("SINK[%s] - %u slaves remaining", sink->name, num_slaves_remaining);
 
-		if (num_slaves_remaining)
+		if (num_slaves_remaining > 0)
 		{
-			recreate_with_slaves(sink, (const char**)slaves_remaining);
+			if (num_slaves_remaining == num_slave_names)
+				pa_log_notice("SINK[%s] - no slaves removed", sink->name);
+			else
+				recreate_with_slaves(sink, (const char**)slaves_remaining);
 		}
 		else
 		{
 			pa_log_notice("SINK[%s] - destroy (no slaves remaining)", sink->name);
-			// TODO kill input and unload module
+			pa_module_unload(sink->core, sink->module, false);
 		}
 		free(slaves_remaining);
 	}
@@ -93,7 +100,9 @@ new_sink_cb(pa_core* core, pa_sink* new_sink, void* u)
 			const char** slave_names = NULL;
 			str_split(slave_names_str, SLAVES_SEPARATOR, &slave_names);
 
-			if (slave_names && pa_idxset_size(core->sinks) > 1)
+			pa_assert(slave_names);
+
+			if (pa_idxset_size(core->sinks) > 1)
 			{
 				pa_log_notice("SINK[%s] - try removing slaves from existing combine sinks", new_sink->name);
 				void* state = NULL;
@@ -120,6 +129,9 @@ new_sink_cb(pa_core* core, pa_sink* new_sink, void* u)
 int
 pa__init(pa_module* m)
 {
+//	pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_PROPLIST_CHANGED],
+//			PA_HOOK_EARLY, (pa_hook_cb_t)new_sink_cb, NULL);
+
 	pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_PUT],
 			PA_HOOK_EARLY, (pa_hook_cb_t)new_sink_cb, NULL);
 
